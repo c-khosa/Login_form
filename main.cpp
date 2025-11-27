@@ -11,7 +11,17 @@ public:
     void login();
     void signup();
     void forgot();
+    string getHiddenPasswordSimple();
 };
+string temp:: getHiddenPasswordSimple() {
+    string pass;
+    system("stty -echo");
+    getline(cin, pass);
+    system("stty echo");
+    cout << endl;
+    return pass;
+}
+
 void temp::signup()
 {
     cout << "\n Enter your user name :: ";
@@ -19,7 +29,7 @@ void temp::signup()
     cout << "\n enter you email :: ";
     getline(cin, email);
     cout << "\n Enter the password :: ";
-    getline(cin,password);
+    password=getHiddenPasswordSimple();
     file.open("loginData.txt", ios::out | ios::app);
     file << username << "*" << email << "*" << password << endl;
     file.close();
@@ -30,7 +40,7 @@ void temp::login()
     cout << "Enter the username ::" << endl;
     getline(cin, searchname);
     cout << "Enter the password ::" << endl;
-    getline(cin, searchpass);
+    searchpass=getHiddenPasswordSimple() ;
 
     file.open("loginData.txt", ios::in);
     if (!file) {
