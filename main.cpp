@@ -1,220 +1,134 @@
 #include <iostream>
-#include <string>
-#include <limits>
-#include <iomanip>
-#include<vector>
+#include <fstream>
 using namespace std;
-class BankAccount
+class temp
 {
-    
-private:
-    string accountNumber;
-    string accountHolderName;
-    double balance;
+    string username, email, password;
+    string searchname, searchpass, searchemail;
+    fstream file;
 
 public:
-static int nextAccountNumber;
-    BankAccount( string accHolder, double initialBalance)
-    {
-        accountNumber = to_string(nextAccountNumber++);
-        accountHolderName = accHolder;
-        balance = initialBalance;
-    }
-
-    void deposit(double amount)
-    {
-        balance += amount;
-        cout << "Deposited: " << amount << endl;
-    }
-
-    void withdraw(double amount)
-    {
-        if (amount <= balance)
-        {
-            balance -= amount;
-            cout << "Withdrew: " << amount << endl;
-        }
-        else
-        {
-            cout << "Insufficient funds!" << endl;
-        }
-    }
-
-    void  displayAccountInfo() const
-    {
-        cout << "Account Number: " << accountNumber << endl;
-        cout << "Account Holder: " << accountHolderName << endl;
-        cout << fixed << setprecision(2);
-        cout << "Balance: " << balance << endl;
-    }
-    string getaccountNumber(){
-        return accountNumber;
-    }
+    void login();
+    void signup();
+    void forgot();
 };
-BankAccount* findAccount(vector<BankAccount>& accounts, const string& accNum)
+void temp::signup()
 {
-    for (auto& acc : accounts)
-    {
-        if (acc.getaccountNumber() == accNum)
-        {
-            return &acc;   
+    cout << "\n Enter your user name :: ";
+    getline(cin, username);
+    cout << "\n enter you email :: ";
+    getline(cin, email);
+    cout << "\n Enter the password :: ";
+    getline(cin,password);
+    file.open("loginData.txt", ios::out | ios::app);
+    file << username << "*" << email << "*" << password << endl;
+    file.close();
+}
+void temp::login()
+{
+    cout << "------------LOGIN---------" << endl;
+    cout << "Enter the username ::" << endl;
+    getline(cin, searchname);
+    cout << "Enter the password ::" << endl;
+    getline(cin, searchpass);
+
+    file.open("loginData.txt", ios::in);
+    if (!file) {
+        cout << "Could not open loginData.txt" << endl;
+        return;
+    }
+
+    bool found = false;
+
+    // Read each record (line) from the file
+    while (getline(file, username, '*') &&
+           getline(file, email, '*') &&
+           getline(file, password, '\n')) {
+            
+
+
+        if (username == searchname) {
+            found = true;
+            if (password == searchpass) {
+                cout << "\n\nAccount successfully logged in!";
+                cout << "\nUsername :: " << username << endl;
+                cout << "\nEmail    :: " << email << endl;
+            } else {
+                cout << "Password is incorrect." << endl;
+            }
+            break;  // stop after finding the username
         }
     }
-    return nullptr;       
+
+    if (!found) {
+        cout << "No account found with that username." << endl;
+    }
+
+    file.close();
 }
 
-int BankAccount::nextAccountNumber = 1001; 
+void temp :: forgot()
+{
+    cout<<"Enter the username :: "<<endl;
+    getline(cin,searchname);
+    cout<<"Enter the Emai:: "<<endl;
+    getline(cin,searchemail);
+    file.open("loginData.txt",ios :: in);
+    getline(file,username,'*');
+    getline(file,email,'*');
+    getline(file,password,'\n');
+    while(!file.eof()){
+        if(searchname==username){
+            if(email==searchemail)
+            {
+                cout<<"Acoount found ";
+                cout<<"Passord is ::"<<password<<endl;
+            }
+            else{
+                cout<<"email not match";
+            }
+        }
+        else{
+            cout<<"Result not found";
+        }
+    }
+
+} 
 
 int main()
 {
+    temp obj;
+    char choice;
+    cout << "\n1. LOGIN";
+cout << "\n2. SIGN-UP";
+cout << "\n3. FORGET PASSWORD";
+cout << "\n4. EXIT";
+cout << "\n\nENTER YOUR CHOICE: ";
+cin >> choice;
+cin.ignore(); // to clear newline before getline()
 
-    cout << "Welcome to the Bank Account Management System!" << endl;
-    cout << "Enter Account Details:" << endl;
-    vector<BankAccount> account;
-    int choice;
-    do
+
+    switch (choice)
     {
-        cout << "1. Create Account" << endl;
-        cout << "2. Deposit" << endl;
-        cout << "3. Withdraw" << endl;
-        cout << "4. Display One Account" << endl;
-        cout << "5. Display All Accounts" << endl;
-        cout << "6. Exit" << endl;
-        cout << "Choose an option: ";
-        cin >> choice;
+    case '1':
 
-        if (choice == 1)
-        {
-            string  accHolder;
-            double initialBalance;
-           
-            cout << "Account Holder Name: ";
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        obj.login();
+        break;
+    case '2':
+        obj.signup();
+        break;
+    case '3':
+    obj .forgot();
 
-            getline(cin, accHolder);
-            cout << "Initial Balance: ";
-            while (!(cin >> initialBalance) || initialBalance < 0)
-            {
-                cout << "Enter a valid non-negative amount: ";
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            }
-            account.push_back(BankAccount(accHolder, initialBalance));
-            cout << "Account created successfully!" << endl;
-            cout<<"Account number"<<account.back().getaccountNumber()<<endl<<endl;
-        }
-        else if (choice == 2)
-        {
-            if (account.empty())
-            {
-                cout << "No accounts available. Create an account first." << endl;
-                continue;
-            }
+        break;
+    case '4':
+     return 0;
 
-            string accNum;
-            cout << "Enter Account Number for deposit: ";
-            cin >> accNum;
-            BankAccount* acc = findAccount(account, accNum);
-            if (acc == nullptr)
-            {
-                cout << "Account not found!" << endl;
-            }
-            else
-            {
-                double amount;
-                cout << "Enter amount to deposit: ";
-                while (!(cin >> amount) || amount <= 0)
-                {
-                    cout << "Enter a valid positive amount: ";
-                    cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                }
-                acc->deposit(amount);
-            }
-        }
-        else if (choice == 3)
-        {
-            if (account.empty())
-            {
-                cout << "No accounts available. Create an account first." << endl;
-                continue;
-            }
+        break;
 
-            string accNum;
-            cout << "Enter Account Number for withdrawal: ";
-            cin >> accNum;
-
-            BankAccount* acc = findAccount(account, accNum);
-            if (acc == nullptr)
-            {
-                cout << "Account not found!" << endl;
-            }
-            else
-            {
-                double amount;
-                cout << "Enter amount to withdraw: ";
-                while (!(cin >> amount) || amount <= 0)
-                {
-                    cout << "Enter a valid positive amount: ";
-                    cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                }
-                acc->withdraw(amount);
-            }
-        }
-        else if (choice == 4)
-        {
-            if (account.empty())
-            {
-                cout << "No accounts available." << endl;
-                continue;
-            }
-
-            string accNum;
-            cout << "Enter Account Number to display: ";
-            cin >> accNum;
-
-            BankAccount* acc = findAccount(account, accNum);
-            if (acc == nullptr)
-            {
-                cout << "Account not found!" << endl;
-            }
-            else
-            {
-                acc->displayAccountInfo();
-            }
-        }
-                else if (choice == 5)
-        {
-            if (account.empty())
-            {
-                cout << "No accounts available." << endl;
-            }
-            else
-            {
-                cout << "\nAll Accounts:" << endl;
-                for (const auto& acc : account)
-                {
-                    acc.displayAccountInfo();
-                }
-            }
-        }
-
-
-
-        else if (choice == 6)
-        {
-            cout << "Exiting the system. Goodbye!" << endl;
-        }
-        else
-        {
-            cout << "Invalid choice! Please try again." << endl;
-        }
-
-    } while (choice != 6);
-
+    default:
+        cout << "\n Invalid function";
+        break;
+    }
     return 0;
 }
-   
-
-    
